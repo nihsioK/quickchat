@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script src="/static/test.js"></script>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/register" id="register-link">Register</a>
+        <a href="/login" id="login-link">Login</a>
+        <a href="/users">Users</a>
+        <a href="/chats">Chat Rooms</a>
+        <button id="logout-button" style="display: none">Logout</button>
+      </nav>
+    </header>
+    <main>{% block content %}{% endblock %}</main>
+    <footer>
+      <p>&copy; 2024 QuickChat</p>
+    </footer>
+    {% block script %}{% endblock %}
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        const token = localStorage.getItem("access_token");
+        const registerLink = document.getElementById("register-link");
+        const loginLink = document.getElementById("login-link");
+        const logoutButton = document.getElementById("logout-button");
+
+        if (token) {
+          const response = await fetch("/api/v1/users/me", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (response.ok) {
+            const user = await response.json();
+            document.getElementById(
+              "welcome-message"
+            ).textContent = `Welcome, ${user.username}!`;
+            registerLink.style.display = "none";
+            loginLink.style.display = "none";
+            logoutButton.style.display = "inline";
+          } else {
+            localStorage.removeItem("access_token");
+          }
+        }
+
+        logoutButton.addEventListener("click", () => {
+          localStorage.removeItem("access_token");
+          window.location.href = "/login";
+        });
+      });
+    </script>
+  </body>
+</html>

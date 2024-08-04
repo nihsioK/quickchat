@@ -1,0 +1,47 @@
+{% extends "base.html" %} {% block title %}Home{% endblock %} {% block content
+%}
+<h1>Welcome to QuickChat!</h1>
+<p id="welcome-message">Join the conversation by logging in or registering.</p>
+{% endblock %} {% block script %}
+<script>
+  console.log("Index script loaded"); // Debug statement to verify script load
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    console.log("DOM fully loaded and parsed"); // Debug statement to verify DOMContentLoaded
+    const token = localStorage.getItem("access_token");
+    console.log("Access token:", token);
+
+    const registerLink = document.getElementById("register-link");
+    const loginLink = document.getElementById("login-link");
+    const logoutButton = document.getElementById("logout-button");
+
+    if (token) {
+      const response = await fetch("/api/v1/users/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const user = await response.json();
+        console.log("User information:", user);
+        document.getElementById(
+          "welcome-message"
+        ).textContent = `Welcome, ${user.username}!`;
+        registerLink.style.display = "none";
+        loginLink.style.display = "none";
+        logoutButton.style.display = "inline";
+      } else {
+        console.error("Failed to fetch user information");
+        localStorage.removeItem("access_token");
+      }
+    }
+
+    logoutButton.addEventListener("click", () => {
+      console.log("Logout button clicked"); // Debug statement to verify logout button click
+      localStorage.removeItem("access_token");
+      window.location.href = "/login";
+    });
+  });
+</script>
+{% endblock %}

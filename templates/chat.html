@@ -1,0 +1,76 @@
+{% extends "base.html" %} {% block title %}Chat{% endblock %} {% block content
+%}
+<h1>Chat Room</h1>
+<div id="chat-window"></div>
+<form id="message-form">
+  <input type="text" id="message-input" placeholder="Type a message" />
+  <button type="submit">Send</button>
+</form>
+{% endblock %} {% block script %}
+<script>
+  console.log('Chat script loaded'); // Debug statement to verify script load
+
+  document.addEventListener('DOMContentLoaded', async () => {
+      console.log('DOM fully loaded and parsed for chat'); // Debug statement to verify DOMContentLoaded
+      const token = localStorage.getItem('access_token');
+      const chatId = {{ chat_id }};
+      console.log('Access token:', token);
+      console.log('Chat ID:', chatId);
+
+      if (token) {
+          const response = await fetch(`/api/v1/chats/${chatId}/messages`, {
+              headers: {
+                  'Authorization': `Bearer ${token}`
+              }
+          });
+
+          if (response.ok) {
+              const messages = await response.json();
+              console.log('Messages:', messages);
+              const chatWindow = document.getElementById('chat-window');
+              chatWindow.innerHTML = '';
+              messages.forEach(message => {
+
+                  const messageElement = document.createElement('div');
+                  messageElement.textContent = message.content + ' - ' + message.sender_id;
+                  chatWindow.appendChild(messageElement);
+              });
+
+              document.getElementById('message-form').addEventListener('submit', sendMessage);
+          } else {
+              console.error('Failed to fetch messages');
+          }
+      } else {
+          window.location.href = '/login'; // Redirect to login if no token is found
+      }
+  });
+
+  async function sendMessage(event) {
+      event.preventDefault();
+      const messageInput = document.getElementById('message-input');
+      const messageContent = messageInput.value;
+      const chatId = {{ chat_id }};
+
+      const response = await fetch(`/api/v1/chats/${chatId}/messages`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+          },
+          body: JSON.stringify({ content: messageContent })
+      });
+
+      if (response.ok) {
+          const newMessage = await response.json();
+          console.log('New message:', newMessage);
+          const chatWindow = document.getElementById('chat-window');
+          const messageElement = document.createElement('div');
+          messageElement.textContent = newMessage.content;
+          chatWindow.appendChild(messageElement);
+          messageInput.value = '';
+      } else {
+          console.error('Failed to send message');
+      }
+  }
+</script>
+{% endblock %}

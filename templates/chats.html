@@ -1,0 +1,42 @@
+{% extends "base.html" %} {% block title %}My Chats{% endblock %} {% block
+content %}
+<h1>My Chat Rooms</h1>
+<div id="chat-list">
+  <!-- Chat rooms will be dynamically added here -->
+</div>
+{% endblock %} {% block script %}
+<script>
+  console.log("Chats script loaded"); // Debug statement to verify script load
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    console.log("DOM fully loaded and parsed for chats"); // Debug statement to verify DOMContentLoaded
+    const token = localStorage.getItem("access_token");
+    console.log("Access token:", token);
+
+    if (token) {
+      const response = await fetch("/api/v1/chats/mine", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const chats = await response.json();
+        console.log("Chats:", chats);
+        const chatList = document.getElementById("chat-list");
+        chatList.innerHTML = "";
+        chats.forEach((chat) => {
+          const chatElement = document.createElement("div");
+          chatElement.className = "chat-room";
+          chatElement.innerHTML = `<a href="/chat/${chat.id}">${chat.name}</a>`;
+          chatList.appendChild(chatElement);
+        });
+      } else {
+        console.error("Failed to fetch chat rooms");
+      }
+    } else {
+      window.location.href = "/login";
+    }
+  });
+</script>
+{% endblock %}

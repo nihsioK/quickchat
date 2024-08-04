@@ -1,0 +1,81 @@
+{% extends "base.html" %} {% block title %}Users{% endblock %} {% block content
+%}
+<h1>Users</h1>
+<ul id="user-list"></ul>
+{% endblock %} {% block script %}
+<script>
+  console.log("Users script loaded"); // Debug statement to verify script load
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    console.log("DOM fully loaded and parsed for users"); // Debug statement to verify DOMContentLoaded
+    const token = localStorage.getItem("access_token");
+    console.log("Access token:", token);
+
+    const registerLink = document.getElementById("register-link");
+    const loginLink = document.getElementById("login-link");
+    const logoutButton = document.getElementById("logout-button");
+
+    if (token) {
+      const response = await fetch("/api/v1/users", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const users = await response.json();
+        console.log("Users:", users);
+        registerLink.style.display = "none";
+        loginLink.style.display = "none";
+        logoutButton.style.display = "inline";
+
+        const userList = document.getElementById("user-list");
+        users.forEach((user) => {
+          const userItem = document.createElement("li");
+          userItem.textContent = user.username;
+          const startChatButton = document.createElement("button");
+          startChatButton.textContent = "Start Chat";
+          startChatButton.addEventListener("click", () => {
+            startChat(user.id);
+          });
+          userItem.appendChild(startChatButton);
+          userList.appendChild(userItem);
+        });
+      } else {
+        console.error("Failed to fetch users");
+        localStorage.removeItem("access_token");
+        window.location.href = "/login"; // Redirect to login if token is invalid
+      }
+    } else {
+      window.location.href = "/login"; // Redirect to login if no token is found
+    }
+
+    logoutButton.addEventListener("click", () => {
+      console.log("Logout button clicked"); // Debug statement to verify logout button click
+      localStorage.removeItem("access_token");
+      window.location.href = "/login";
+    });
+  });
+
+  async function startChat(userId) {
+    console.log("Starting chat with user ID:", userId);
+    const token = localStorage.getItem("access_token");
+    const response = await fetch(`/api/v1/chats/${userId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ user_id: userId }),
+    });
+
+    if (response.ok) {
+      const chat = await response.json();
+      console.log("Chat information:", chat);
+      window.location.href = `/chat/${chat.id}`;
+    } else {
+      console.error("Failed to start or get chat");
+    }
+  }
+</script>
+{% endblock %}
