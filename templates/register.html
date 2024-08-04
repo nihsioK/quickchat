@@ -1,11 +1,34 @@
 {% extends "base.html" %} {% block title %}Register{% endblock %} {% block
 content %}
 <h1>Register</h1>
-<form method="post" action="/api/v1/users/">
+<form id="registerForm">
   <label for="username">Username:</label>
   <input type="text" id="username" name="username" required />
   <label for="password">Password:</label>
   <input type="password" id="password" name="password" required />
   <button type="submit">Register</button>
 </form>
+
+<script>
+  document
+    .getElementById("registerForm")
+    .addEventListener("submit", async function (event) {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const data = Object.fromEntries(formData.entries());
+      const response = await fetch("/api/v1/users/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (response.ok) {
+        window.location.href = "/login";
+      } else {
+        const errorData = await response.json();
+        alert("Registration failed: " + JSON.stringify(errorData));
+      }
+    });
+</script>
 {% endblock %}
