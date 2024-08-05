@@ -1,26 +1,11 @@
 body {
-  font-family: Arial, sans-serif;
-}
-
-header {
-  background-color: #333;
-  color: white;
-  padding: 10px 0;
-  text-align: center;
-}
-
-nav a {
-  color: white;
-  margin: 0 10px;
-  text-decoration: none;
+  padding-top: 56px;
 }
 
 footer {
-  text-align: center;
-  padding: 10px 0;
-  background-color: #333;
-  color: white;
-  position: absolute;
+  position: fixed;
   bottom: 0;
   width: 100%;
+  background-color: #f8f9fa;
+  padding: 10px 0;
 }

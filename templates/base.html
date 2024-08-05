@@ -4,31 +4,58 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}{% endblock %}</title>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="/static/styles.css" />
-    <script src="/static/test.js"></script>
   </head>
   <body>
     <header>
-      <nav>
-        <a href="/">Home</a>
-        <a href="/register" id="register-link">Register</a>
-        <a href="/login" id="login-link">Login</a>
-        <a href="/users">Users</a>
-        <a href="/chats">Chat Rooms</a>
-        <button id="logout-button" style="display: none">Logout</button>
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">QuickChat</a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/register" id="register-link"
+                >Register</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/login" id="login-link">Login</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/users">Users</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/chats">Chat Rooms</a>
+            </li>
+            <li class="nav-item">
+              <button
+                id="logout-button"
+                class="btn btn-danger"
+                style="display: none"
+              >
+                Logout
+              </button>
+            </li>
+          </ul>
+        </div>
       </nav>
     </header>
-    <main>{% block content %}{% endblock %}</main>
-    <footer>
+    <main class="container mt-4">{% block content %}{% endblock %}</main>
+    <footer class="text-center mt-4">
       <p>&copy; 2024 QuickChat</p>
     </footer>
-    {% block script %}{% endblock %}
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-      document.addEventListener("DOMContentLoaded", async () => {
+      async function checkAuthentication() {
         const token = localStorage.getItem("access_token");
         const registerLink = document.getElementById("register-link");
         const loginLink = document.getElementById("login-link");
         const logoutButton = document.getElementById("logout-button");
+        const welcomeMessage = document.getElementById("welcome-message");
 
         if (token) {
           const response = await fetch("/api/v1/users/me", {
@@ -39,22 +66,25 @@
 
           if (response.ok) {
             const user = await response.json();
-            document.getElementById(
-              "welcome-message"
-            ).textContent = `Welcome, ${user.username}!`;
+            if (welcomeMessage) {
+              welcomeMessage.textContent = `Welcome, ${user.username}!`;
+            }
             registerLink.style.display = "none";
             loginLink.style.display = "none";
             logoutButton.style.display = "inline";
           } else {
             localStorage.removeItem("access_token");
+            window.location.href = "/login";
           }
         }
-
-        logoutButton.addEventListener("click", () => {
+        logoutButton.onclick = () => {
           localStorage.removeItem("access_token");
           window.location.href = "/login";
-        });
-      });
+        };
+      }
+      document.addEventListener("DOMContentLoaded", checkAuthentication);
     </script>
+
+    {% block script %}{% endblock %}
   </body>
 </html>

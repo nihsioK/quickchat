@@ -5,10 +5,10 @@ from datetime import datetime
 
 def create_message(db: Session, message: MessageCreate, sender_id: int, chat_id: int):
     db_message = Message(
-        **message.dict(),
+        **message.model_dump(),
         sender_id=sender_id,
         chat_id=chat_id,
-        timestamp=datetime.utcnow()  # Ensure timestamp is set to current time
+        timestamp=datetime.utcnow()
     )
     db.add(db_message)
     db.commit()

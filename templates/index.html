@@ -1,47 +1,43 @@
 {% extends "base.html" %} {% block title %}Home{% endblock %} {% block content
 %}
-<h1>Welcome to QuickChat!</h1>
-<p id="welcome-message">Join the conversation by logging in or registering.</p>
+<div class="py-5 text-center">
+  <h1 class="display-4">Welcome to QuickChat!</h1>
+  <p class="lead" id="welcome-message">
+    Join the conversation by logging in or registering.
+  </p>
+  <hr class="my-4" />
+  <p>
+    Connect, communicate, and collaborate with users around the globe in
+    real-time.
+  </p>
+  <div id="action-buttons">
+    <a href="/register" class="btn btn-primary my-2">Register Now</a>
+    <a href="/login" class="btn btn-secondary my-2">Login</a>
+  </div>
+</div>
 {% endblock %} {% block script %}
 <script>
-  console.log("Index script loaded"); // Debug statement to verify script load
-
-  document.addEventListener("DOMContentLoaded", async () => {
-    console.log("DOM fully loaded and parsed"); // Debug statement to verify DOMContentLoaded
+  document.addEventListener("DOMContentLoaded", function () {
     const token = localStorage.getItem("access_token");
-    console.log("Access token:", token);
-
-    const registerLink = document.getElementById("register-link");
-    const loginLink = document.getElementById("login-link");
-    const logoutButton = document.getElementById("logout-button");
-
     if (token) {
-      const response = await fetch("/api/v1/users/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const user = await response.json();
-        console.log("User information:", user);
-        document.getElementById(
-          "welcome-message"
-        ).textContent = `Welcome, ${user.username}!`;
-        registerLink.style.display = "none";
-        loginLink.style.display = "none";
-        logoutButton.style.display = "inline";
-      } else {
-        console.error("Failed to fetch user information");
-        localStorage.removeItem("access_token");
-      }
+      // Fetch the user data to confirm token is still valid
+      fetch("/api/v1/users/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((response) => {
+          if (response.ok) {
+            // If user is logged in, hide action buttons
+            document.getElementById("action-buttons").style.display = "none";
+          } else {
+            // If the token is invalid, remove it and show the buttons
+            localStorage.removeItem("access_token");
+          }
+        })
+        .catch(() => {
+          // Handle any errors (e.g., network error)
+          localStorage.removeItem("access_token");
+        });
     }
-
-    logoutButton.addEventListener("click", () => {
-      console.log("Logout button clicked"); // Debug statement to verify logout button click
-      localStorage.removeItem("access_token");
-      window.location.href = "/login";
-    });
   });
 </script>
 {% endblock %}

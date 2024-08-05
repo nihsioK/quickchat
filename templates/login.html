@@ -1,50 +1,52 @@
 {% extends "base.html" %} {% block title %}Login{% endblock %} {% block content
 %}
-<h1>Login</h1>
-<form id="login-form">
-  <label for="username">Username:</label>
-  <input type="text" id="username" name="username" required />
-  <label for="password">Password:</label>
-  <input type="password" id="password" name="password" required />
-  <button type="submit">Login</button>
-</form>
-{% endblock %} {% block script %}
+<div class="container mt-5">
+  <h1 class="mb-3">Login</h1>
+  <form id="login-form" class="form-row justify-content-center">
+    <div class="form-group col-md-6">
+      <label for="username">Username</label>
+      <input
+        type="text"
+        id="username"
+        name="username"
+        class="form-control"
+        placeholder="Username"
+        required
+      />
+    </div>
+    <div class="form-group col-md-6">
+      <label for="password">Password</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        class="form-control"
+        placeholder="Password"
+        required
+      />
+    </div>
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary">Login</button>
+    </div>
+  </form>
+</div>
 <script>
-  console.log("Login script loaded"); // Add this line to verify the script is loaded
-
   document
     .getElementById("login-form")
     .addEventListener("submit", async (e) => {
       e.preventDefault();
       const username = document.getElementById("username").value;
       const password = document.getElementById("password").value;
-      console.log(
-        "Form submitted with username:",
-        username,
-        "and password:",
-        password
-      );
-
       const response = await fetch("/api/v1/token", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
-          username: username,
-          password: password,
-        }),
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ username: username, password: password }),
       });
-
       const result = await response.json();
-      console.log("Login response:", result);
-
       if (response.ok) {
-        console.log("Token received:", result.access_token);
         localStorage.setItem("access_token", result.access_token);
         window.location.href = "/";
       } else {
-        console.error("Login failed:", result.detail);
         alert(result.detail);
       }
     });

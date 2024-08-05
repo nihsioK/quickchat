@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
+from .user import User
 
 class MessageBase(BaseModel):
     content: str
@@ -12,6 +13,7 @@ class Message(MessageBase):
     timestamp: datetime
     sender_id: int
     chat_id: int
+    sender: User
 
     class Config:
-        orm_mode = True
+        from_attributes = True
