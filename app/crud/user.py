@@ -19,5 +19,5 @@ def create_user(db: Session, user: UserCreate):
     db.refresh(db_user)
     return db_user
 
-def get_users(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(User).offset(skip).limit(limit).all()
+def get_users(db: Session, skip: int = 0, limit: int = 100, user_id: int = None):
+    return db.query(User).filter(User.id != user_id).offset(skip).limit(limit).all()

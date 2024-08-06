@@ -22,8 +22,8 @@ def read_users_me(current_user: User = Depends(get_current_user)):
 
 
 @router.get("/users", response_model=List[User])
-def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return get_users(db, skip=skip, limit=limit)
+def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return get_users(db, skip=skip, limit=limit, user_id=current_user.id)
 
 
 @router.get("/users/{user_id}", response_model=User)
